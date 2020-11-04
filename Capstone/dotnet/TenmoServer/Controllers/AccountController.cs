@@ -12,7 +12,7 @@ namespace TenmoServer.Controllers
     [ApiController]
     [Authorize]
 
-    public class UserController : ControllerBase
+    public class AccountController : ControllerBase
     {
 
         private int? GetCurrentUserId()
@@ -25,7 +25,7 @@ namespace TenmoServer.Controllers
 
         private static IAccountDAO AccountDAO;
 
-        public UserController(IAccountDAO _accountDAO)
+        public AccountController(IAccountDAO _accountDAO)
         {
             AccountDAO = _accountDAO;
         }

@@ -21,7 +21,7 @@ namespace TenmoServer.DAO
         public decimal GetBalance(int accountId)
         {
             // Account account = null;
-            UserController userController = null;
+            AccountController userController = null;
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -29,7 +29,7 @@ namespace TenmoServer.DAO
                     conn.Open();
 
                     SqlCommand cmd = new SqlCommand("SELECT balance FROM accounts WHERE account_id = @accountId", conn);
-                    cmd.Parameters.AddWithValue("@accountId", accountId );
+                    cmd.Parameters.AddWithValue("@accountId", accountId);
                     //SqlDataReader reader = cmd.ExecuteScalar();
 
                     return Convert.ToDecimal(cmd.ExecuteScalar());
@@ -42,7 +42,39 @@ namespace TenmoServer.DAO
 
             return 0;
         }
+        public Account GetAccountById(int userId)
+        {
+            Account accountFromUserId = new Account();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM accounts WHERE user_id = @userId", conn);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        accountFromUserId = GetAccountFromReader(reader);
+                    }
+                }
 
-        
+            }
+            catch
+            {
+                throw;
+            }
+            return accountFromUserId;
+        }
+        private Account GetAccountFromReader(SqlDataReader reader)
+        {
+            Account a = new Account()
+            {
+                AccountId = Convert.ToInt32(reader["account_id"]),
+                UserId = Convert.ToInt32(reader["user_id"]),
+                Balance = Convert.ToDecimal(reader["balance"]),
+            };
+            return a;
+        }
     }
 }

@@ -120,7 +120,6 @@ namespace TenmoServer.DAO
                 PasswordHash = Convert.ToString(reader["password_hash"]),
                 Salt = Convert.ToString(reader["salt"]),
             };
-
             return u;
         }
     }
