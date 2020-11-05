@@ -53,9 +53,54 @@ namespace TenmoClient
 
             return response.Data;
         }
-    
+        public List<API_User> GetUsers()
+        {
+            RestRequest request = new RestRequest(API_BASE_URL + "transfer");
+            client.Authenticator = new JwtAuthenticator(UserService.GetToken());
+            IRestResponse<List<API_User>> response = client.Get<List<API_User>>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            else
+            {
+                return response.Data;
+            }
 
+            return response.Data;
 
+        }
+
+        public List<Transfer> GetPendingTransfers()
+        {
+            RestRequest request = new RestRequest(API_BASE_URL + "transfer/pending");
+            client.Authenticator = new JwtAuthenticator(UserService.GetToken());
+            IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            else
+            {
+                return response.Data;
+            }
+            return response.Data;
+        }
+        public decimal TransferFunds(int recipientId, decimal amount)
+        {
+            RestRequest request = new RestRequest(API_BASE_URL + "transfer");
+            client.Authenticator = new JwtAuthenticator(UserService.GetToken());
+            IRestResponse<decimal> response = client.Put<decimal>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            else
+            {
+                return response.Data;
+            }
+            return response.Data;
+        }
         private void ProcessErrorResponse(IRestResponse response)
         {
             if (response.ResponseStatus != ResponseStatus.Completed)

@@ -10,7 +10,7 @@ namespace TenmoServer.DAO
     public class TransferSqlDAO : ITransferDAO
     {
         private readonly string connectionString;
-
+        static TransferStatuses status = new TransferStatuses();
         public TransferSqlDAO(string dbConnectionString)
         {
             connectionString = dbConnectionString;
@@ -48,13 +48,12 @@ namespace TenmoServer.DAO
             u.Username = Convert.ToString(reader["username"]);
             return u;
         }
-        public decimal TransferFunds(decimal amountToTransfer, Account sender, Account receiver)
+        public decimal TransferFunds(decimal amountToTransfer, Account sender, Account receiver, int userId)//sending money as a sender successfully
         {
-            TransferStatuses status = new TransferStatuses(2);
-            if (sender.Balance >= amountToTransfer)
+
+            if (sender.Balance >= amountToTransfer && userId == sender.AccountId)
             {
-                sender.Balance -= amountToTransfer;
-                receiver.Balance += amountToTransfer;
+
                 try
                 {
                     using (SqlConnection conn = new SqlConnection(connectionString))
@@ -70,11 +69,9 @@ namespace TenmoServer.DAO
                         cmd.Parameters.AddWithValue("@receiverId", receiver.AccountId);
                         cmd.Parameters.AddWithValue("@amount", amountToTransfer);
                         SqlDataReader reader = cmd.ExecuteReader();
-                        //while (reader.Read())
-                        //{
-                        //execute non query to get back rows affected to see if transfer successful
-                        //}
                     }
+                    sender.Balance -= amountToTransfer;
+                    receiver.Balance += amountToTransfer;
                 }
                 catch (SqlException)
                 {
@@ -85,6 +82,57 @@ namespace TenmoServer.DAO
             return sender.Balance;
         }
 
+        private void RequestMoney(decimal amountToTransfer, Account sender, Account receiver, int userId)
+        {
+
+             status.TransferStatusId = 1;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (1, 1, @senderId, @receiverId, @amount)", conn);//hard coded type id
+                    cmd.Parameters.AddWithValue("@newBalance", sender.Balance);
+                    cmd.Parameters.AddWithValue("@newBalance2", receiver.Balance);
+                    cmd.Parameters.AddWithValue("@senderId", sender.AccountId);
+                    cmd.Parameters.AddWithValue("@receiverId", receiver.AccountId);
+                    cmd.Parameters.AddWithValue("@amount", amountToTransfer);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                }
+            }
+            catch (SqlException)
+            {
+                status.TransferStatusId = 3;
+                throw;
+            }
+
+        }
+
+        public List<Transfer> GetPendingTransfers(int userId)
+        {
+            List<Transfer> pendingTransfers = new List<Transfer>();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM transfers WHERE transfer_status_id = 1 AND account_to = @userId; ", conn);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Transfer t = ConvertReaderToTransfer(reader);
+                        pendingTransfers.Add(t);
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            return pendingTransfers;
+        }
         public List<Transfer> GetListOfTransfers(int userId)
         {
             List<Transfer> allTransfer = new List<Transfer>();

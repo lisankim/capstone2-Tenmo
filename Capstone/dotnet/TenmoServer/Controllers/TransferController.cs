@@ -38,7 +38,7 @@ namespace TenmoServer.Controllers
         {
             Account sender = AccountDAO.GetAccountById(t.AccountFrom);
             Account receiver = AccountDAO.GetAccountById(t.AccountTo);
-            return TransferDAO.TransferFunds(t.Amount, sender, receiver);
+            return TransferDAO.TransferFunds(t.Amount, sender, receiver, (int)GetCurrentUserId());
         }
 
         [HttpGet("all")]
@@ -51,6 +51,12 @@ namespace TenmoServer.Controllers
         public Transfer GetDetailsOfTransfer(int transferId)
         {
             return TransferDAO.GetDetailsOfTransfer(transferId); 
+        }
+
+        [HttpGet("pending")]
+        public List<Transfer> GetPendingTransfers()
+        {
+            return TransferDAO.GetPendingTransfers((int)GetCurrentUserId());
         }
     }
 }

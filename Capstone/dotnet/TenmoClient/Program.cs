@@ -9,6 +9,7 @@ namespace TenmoClient
         private static readonly ConsoleService consoleService = new ConsoleService();
         private static readonly AuthService authService = new AuthService();
         private readonly static APIService API_BASE_URL = new APIService("https://localhost:44315/");
+        private static readonly LoginUser loggedInUser = new LoginUser();
 
         static void Main(string[] args)
         {
@@ -87,19 +88,27 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 1)
                 {
-                    Console.WriteLine("Your current balance is: $"+ API_BASE_URL.GetBalance());
+                    Console.WriteLine("Your current balance is: $" + API_BASE_URL.GetBalance());
                 }
                 else if (menuSelection == 2)
                 {
-                   PrintTransferDetails(API_BASE_URL.GetListOfTransfers());
+                    PrintTransferDetails(API_BASE_URL.GetListOfTransfers());
                 }
                 else if (menuSelection == 3)
                 {
+                    PrintPendingRequests(API_BASE_URL.GetPendingTransfers());
 
                 }
                 else if (menuSelection == 4)
                 {
-
+                    PrintTEBucks(API_BASE_URL.GetUsers());
+                    int id = PromptForUserIDSelection();
+                    decimal amount = 0;
+                    if (id != 0)
+                    {
+                        amount = PromptForAmountSelection();
+                    }
+                    API_BASE_URL.TransferFunds(id, amount);
                 }
                 else if (menuSelection == 5)
                 {
@@ -119,6 +128,33 @@ namespace TenmoClient
             }
         }
 
+        private static int PromptForUserIDSelection()
+        {
+            Console.WriteLine("Enter ID of user you are sending to (0 to cancel): ");
+            int id;
+            while (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.WriteLine("Invalid input.");
+                Console.WriteLine("Enter ID of user you are sending to (0 to cancel): ");
+                Console.ReadLine();
+            }
+
+            return id;
+        }
+
+        private static decimal PromptForAmountSelection()
+        {
+            Console.WriteLine("Enter amount: ");
+            decimal amount;
+            while (!decimal.TryParse(Console.ReadLine(), out amount))
+            {
+                Console.WriteLine("Invalid input.");
+                Console.WriteLine("Enter amount: ");
+                Console.ReadLine();
+            }
+            return amount;
+        }
+
         public static void PrintTransferDetails(List<Transfer> allTransfers)
         {
             foreach (Transfer t in allTransfers)
@@ -136,6 +172,30 @@ namespace TenmoClient
             }
             Console.WriteLine("please enter transfer ID to view details (0 to cancel): ");
         }
-
-}
+        public static void PrintPendingRequests(List<Transfer> pendingTransfers)
+        {
+            Console.WriteLine("--------------------------------------------");
+            Console.WriteLine("Pending Transfers");
+            Console.WriteLine("ID           To      Amount");
+            Console.WriteLine("--------------------------------------------");
+            foreach (Transfer request in pendingTransfers)
+            {
+                Console.WriteLine(request.TransferId + "       " + request.AccountTo + "         " + request.Amount);//maybe backwards AccountFrom?
+            }
+            Console.WriteLine("----------------------------------------------");
+            Console.WriteLine("Please enter transfer ID to approive/reject(0 to cancel): ");
+            //int transferID = int.Parse(Console.ReadLine());
+        }
+        public static void PrintTEBucks(List<API_User> allUsers)//Make transfer an int? since we only care about that property
+        {
+            Console.WriteLine("--------------------------------------------");
+            Console.WriteLine("UsersID               Name");
+            Console.WriteLine("--------------------------------------------");
+            foreach (API_User user in allUsers)
+            {
+                Console.WriteLine(user.UserId + "            " + user.Username);
+            }
+                Console.WriteLine("----------------------------------------------");
+        }
+    }
 }

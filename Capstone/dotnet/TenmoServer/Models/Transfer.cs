@@ -37,21 +37,21 @@ namespace TenmoServer.Models
     {
         public int TransferStatusId { get; set; } = 2;
         public string TransferStatusDesc { get; set; }
-        public TransferStatuses(int transferStatusId)
-        {
-            TransferStatusId = transferStatusId;
-            if (transferStatusId == 1)
-            {
-                TransferStatusDesc = "Pending";
-            }
-            else if (transferStatusId == 2)
-            {
-                TransferStatusDesc = "Approved";
-            }
-            else if (transferStatusId == 3)
-            {
-                TransferStatusDesc = "Rejected";
-            }
-        }
+        //public TransferStatuses(int transferStatusId)
+        //{
+        //    TransferStatusId = transferStatusId;
+        //    if (transferStatusId == 1)
+        //    {
+        //        TransferStatusDesc = "Pending";
+        //    }
+        //    else if (transferStatusId == 2)
+        //    {
+        //        TransferStatusDesc = "Approved";
+        //    }
+        //    else if (transferStatusId == 3)
+        //    {
+        //        TransferStatusDesc = "Rejected";
+        //    }
+        //}
     }
 }
