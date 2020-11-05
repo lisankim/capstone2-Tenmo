@@ -92,7 +92,7 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 2)
                 {
-                    PrintTransferDetails(API_BASE_URL.GetListOfTransfers());
+                    PrintTransferDetails(API_BASE_URL.GetListOfTransfers());//list user's names
                 }
                 else if (menuSelection == 3)
                 {

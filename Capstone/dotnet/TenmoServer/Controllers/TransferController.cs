@@ -33,7 +33,7 @@ namespace TenmoServer.Controllers
         {
             return UserDAO.GetUsers();
         }
-        [HttpPut]
+        [HttpPost]
         public decimal TransferFunds(Transfer t)
         {
             Account sender = AccountDAO.GetAccountById(t.AccountFrom);

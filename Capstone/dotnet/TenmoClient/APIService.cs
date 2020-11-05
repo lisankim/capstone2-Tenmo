@@ -86,20 +86,27 @@ namespace TenmoClient
             }
             return response.Data;
         }
-        public decimal TransferFunds(int recipientId, decimal amount)
+        public void TransferFunds(int recipientId, decimal amount)
         {
+            Transfer t = new Transfer();
+            //balance not being updated
+            t.AccountFrom = UserService.GetUserId();
+            t.AccountTo = recipientId;
+            t.Amount = amount;
+            t.TransferTypeId = 2;
             RestRequest request = new RestRequest(API_BASE_URL + "transfer");
             client.Authenticator = new JwtAuthenticator(UserService.GetToken());
-            IRestResponse<decimal> response = client.Put<decimal>(request);
+            request.AddJsonBody(t);
+            IRestResponse response = client.Post(request);
             if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
             {
                 ProcessErrorResponse(response);
             }
             else
             {
-                return response.Data;
+             //   return response.Data;
             }
-            return response.Data;
+            //return response.Data;
         }
         private void ProcessErrorResponse(IRestResponse response)
         {
