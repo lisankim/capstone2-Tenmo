@@ -85,7 +85,7 @@ namespace TenmoServer.DAO
             return sender.Balance;
         }
 
-        public List<Transfer> GetListOfTransfers()
+        public List<Transfer> GetListOfTransfers(int userId)
         {
             List<Transfer> allTransfer = new List<Transfer>();
             try
@@ -93,7 +93,8 @@ namespace TenmoServer.DAO
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM transfers ", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM transfers WHERE account_from= @userId OR account_to= @userId ", conn);
+                    cmd.Parameters.AddWithValue("@userId", userId);
                     SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
@@ -109,8 +110,33 @@ namespace TenmoServer.DAO
             return allTransfer;
         }
 
-        private Transfer ConvertReaderToTransfer(SqlDataReader reader)
+        public Transfer GetDetailsOfTransfer(int transferId) //fix formatting in printtransferdetail()
         {
+            Transfer transfer = new Transfer();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM transfers WHERE transfer_id = @transferId", conn);
+                    cmd.Parameters.AddWithValue("@transferId", transferId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        transfer = ConvertReaderToTransfer(reader);
+                        return transfer;
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            return transfer;
+        }
+
+            private Transfer ConvertReaderToTransfer(SqlDataReader reader)
+            {
             Transfer t = new Transfer();
             t.TransferId = Convert.ToInt32(reader["transfer_id"]);
             t.TransferTypeId = Convert.ToInt32(reader["transfer_type_id"]);
@@ -119,7 +145,7 @@ namespace TenmoServer.DAO
             t.AccountTo = Convert.ToInt32(reader["account_to"]);
             t.Amount = Convert.ToDecimal(reader["amount"]);
             return t;
-        }
+             }
     }
 }
 

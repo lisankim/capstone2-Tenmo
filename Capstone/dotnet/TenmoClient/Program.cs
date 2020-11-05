@@ -8,6 +8,7 @@ namespace TenmoClient
     {
         private static readonly ConsoleService consoleService = new ConsoleService();
         private static readonly AuthService authService = new AuthService();
+        private readonly static APIService API_BASE_URL = new APIService("https://localhost:44315/");
 
         static void Main(string[] args)
         {
@@ -86,11 +87,11 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 1)
                 {
-
+                    Console.WriteLine("Your current balance is: $"+ API_BASE_URL.GetBalance());
                 }
                 else if (menuSelection == 2)
                 {
-
+                   PrintTransferDetails(API_BASE_URL.GetListOfTransfers());
                 }
                 else if (menuSelection == 3)
                 {
@@ -117,5 +118,24 @@ namespace TenmoClient
                 }
             }
         }
-    }
+
+        public static void PrintTransferDetails(List<Transfer> allTransfers)
+        {
+            foreach (Transfer t in allTransfers)
+            {
+                Console.WriteLine("----------------------------------------");
+                Console.WriteLine("Transfer Details"); //change to TransfersID, add From/To, add Amount
+                Console.WriteLine("----------------------------------------");
+                Console.WriteLine("Id: " + t.TransferId);
+                Console.WriteLine("From: " + t.AccountFrom);
+                Console.WriteLine("To: " + t.AccountTo);
+                Console.WriteLine("Type: " + t.TransferTypeId); //don't need this
+                Console.WriteLine("Status: " + t.TransferStatusId); //don't need this
+                Console.WriteLine("Amount: " + t.Amount);
+                Console.WriteLine("-----------------------------------------");
+            }
+            Console.WriteLine("please enter transfer ID to view details (0 to cancel): ");
+        }
+
+}
 }

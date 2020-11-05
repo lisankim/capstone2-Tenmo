@@ -44,7 +44,13 @@ namespace TenmoServer.Controllers
         [HttpGet("all")]
         public List<Transfer> GetTransfersList()
         {
-            return TransferDAO.GetListOfTransfers();
+            return TransferDAO.GetListOfTransfers((int)GetCurrentUserId());
+        }
+
+        [HttpGet("{transferId}")]
+        public Transfer GetDetailsOfTransfer(int transferId)
+        {
+            return TransferDAO.GetDetailsOfTransfer(transferId); 
         }
     }
 }

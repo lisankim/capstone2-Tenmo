@@ -10,6 +10,8 @@ namespace TenmoServer.DAO
     {
         List<User> GetUsers();
         decimal TransferFunds(decimal amtToTransfer, Account sender, Account receiver);
-        List<Transfer> GetListOfTransfers();
+        List<Transfer> GetListOfTransfers(int userId);
+        Transfer GetDetailsOfTransfer(int transferId);
+
     }
 }

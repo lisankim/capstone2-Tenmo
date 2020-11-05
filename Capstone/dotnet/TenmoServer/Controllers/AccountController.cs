@@ -32,7 +32,7 @@ namespace TenmoServer.Controllers
 
 
 
-        [HttpGet("{accountId}")]
+        [HttpGet/*("{accountId}")*/]
         public decimal GetBalance()
            
         {
