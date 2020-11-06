@@ -52,7 +52,7 @@ namespace TenmoServer.DAO
         public decimal TransferFunds(decimal amountToTransfer, Account sender, Account receiver, int userId)//sending money as a sender successfully
         {
 
-            if (sender.Balance >= amountToTransfer && userId == sender.AccountId)
+            if (sender.Balance >= amountToTransfer && userId == sender.AccountId && amountToTransfer > 0)
             {
 
                 try
@@ -85,7 +85,7 @@ namespace TenmoServer.DAO
         public void ReceivePendingRequest(decimal amountToTransfer, Account sender, Account receiver, int userId, int transferId)
         {
             
-            if (sender.Balance >= amountToTransfer)
+            if (sender.Balance >= amountToTransfer && amountToTransfer > 0)
             {
 
                 try
