@@ -13,5 +13,10 @@ namespace TenmoServer.DAO
         List<Transfer> GetListOfTransfers(int userId);
         Transfer GetDetailsOfTransfer(int transferId);
         List<Transfer> GetPendingTransfers(int userId);
+
+        void ReceivePendingRequest(decimal amountToTransfer, Account sender, Account receiver, int userId, int transferId);
+
+        //RequestMoney??
+
     }
 }

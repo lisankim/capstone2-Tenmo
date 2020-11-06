@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TenmoClient.Data;
 
 namespace TenmoClient
@@ -96,7 +97,18 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 3)
                 {
+                    
                     PrintPendingRequests(API_BASE_URL.GetPendingTransfers());
+                    List<int> pendingTransferIds = new List<int>();
+                    foreach(Transfer t in API_BASE_URL.GetPendingTransfers())
+                    {
+                        pendingTransferIds.Add(t.TransferId);
+                    }
+                    int transferId = PromptForTransferId(pendingTransferIds);
+                    if (transferId != 0)
+                    {
+                        AcceptReject()
+                    }
 
                 }
                 else if (menuSelection == 4)
@@ -112,7 +124,7 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 5)
                 {
-
+                   
                 }
                 else if (menuSelection == 6)
                 {
@@ -126,6 +138,44 @@ namespace TenmoClient
                     Environment.Exit(0);
                 }
             }
+        }
+
+        private static int PromptForTransferId(List<int> pendingTransferIds)
+        {
+            Console.WriteLine("Please enter transfer ID to approve/reject (0 to cancel): ");
+            int id;
+            if (int.TryParse(Console.ReadLine(), out id) && id == 0)
+            {
+            }
+            else
+            {
+                while (!int.TryParse(Console.ReadLine(), out id) || !pendingTransferIds.Contains(id))
+                {
+                    Console.WriteLine("Invalid input.");
+                    Console.WriteLine("Please enter transfer ID to approve/reject (0 to cancel): ");
+                    Console.ReadLine();
+                }
+            }
+            return id;
+        }
+
+        public int AcceptReject()
+        {
+            Console.WriteLine("1: Approve");
+            Console.WriteLine("2: Reject");
+            Console.WriteLine("0: Don't approve or reject");
+            Console.WriteLine("---------");
+            Console.WriteLine("Please choose an option:");
+            int[] options = { 0, 1, 2 };
+            int menuId;
+            while (!int.TryParse(Console.ReadLine(), out menuId) || !options.Contains(menuId))
+            {
+                Console.WriteLine("Invalid input.");
+                Console.WriteLine("Enter ID of user you are sending to (0 to cancel): ");
+                Console.ReadLine();
+            }
+
+            return menuId;
         }
 
         private static int PromptForUserIDSelection()
@@ -183,7 +233,7 @@ namespace TenmoClient
                 Console.WriteLine(request.TransferId + "       " + request.AccountTo + "         " + request.Amount);//maybe backwards AccountFrom?
             }
             Console.WriteLine("----------------------------------------------");
-            Console.WriteLine("Please enter transfer ID to approive/reject(0 to cancel): ");
+            Console.WriteLine("Please enter transfer ID to approve/reject(0 to cancel): ");
             //int transferID = int.Parse(Console.ReadLine());
         }
         public static void PrintTEBucks(List<API_User> allUsers)//Make transfer an int? since we only care about that property

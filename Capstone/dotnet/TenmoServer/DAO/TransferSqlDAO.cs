@@ -48,6 +48,7 @@ namespace TenmoServer.DAO
             u.Username = Convert.ToString(reader["username"]);
             return u;
         }
+        //"UPDATE accounts SET transfer_status_id =2 WHERE transfer_id = @transferid", conn);
         public decimal TransferFunds(decimal amountToTransfer, Account sender, Account receiver, int userId)//sending money as a sender successfully
         {
 
@@ -60,11 +61,10 @@ namespace TenmoServer.DAO
                     {
                         conn.Open();
 
-                        SqlCommand cmd = new SqlCommand("UPDATE accounts SET balance = @newBalance WHERE user_id = @senderId; " +
-                                                        "UPDATE accounts SET balance = @newBalance2 WHERE user_id = @receiverId; " +
+                        SqlCommand cmd = new SqlCommand("UPDATE accounts SET balance = (balance-@amount) WHERE user_id = @senderId; " + // =balance-amounttoTransfer
+                                                        "UPDATE accounts SET balance = (balance + @amount) WHERE user_id = @receiverId; " +
                                                         "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 2, @senderId, @receiverId, @amount)", conn);//hard coded type id
-                        cmd.Parameters.AddWithValue("@newBalance", sender.Balance);
-                        cmd.Parameters.AddWithValue("@newBalance2", receiver.Balance);
+
                         cmd.Parameters.AddWithValue("@senderId", sender.AccountId);
                         cmd.Parameters.AddWithValue("@receiverId", receiver.AccountId);
                         cmd.Parameters.AddWithValue("@amount", amountToTransfer);
@@ -80,6 +80,40 @@ namespace TenmoServer.DAO
                 }
             }
             return sender.Balance;
+        }
+
+        public void ReceivePendingRequest(decimal amountToTransfer, Account sender, Account receiver, int userId, int transferId)
+        {
+            
+            if (sender.Balance >= amountToTransfer)
+            {
+
+                try
+                {
+                    using (SqlConnection conn = new SqlConnection(connectionString))
+                    {
+                        conn.Open();
+
+                        SqlCommand cmd = new SqlCommand("UPDATE accounts SET balance = (balance-@amount) WHERE user_id = @senderId; " + // =balance-amounttoTransfer
+                                                        "UPDATE accounts SET balance = (balance + @amount) WHERE user_id = @receiverId; " +
+                                                        "UPDATE transfers SET transfer_status_id =2 WHERE transfer_id = @transferid;", conn) ;//hard coded type id
+
+                        cmd.Parameters.AddWithValue("@senderId", sender.AccountId);
+                        cmd.Parameters.AddWithValue("@receiverId", receiver.AccountId);
+                        cmd.Parameters.AddWithValue("@amount", amountToTransfer);
+                        cmd.Parameters.AddWithValue("@transferid", transferId);
+                        int rows= cmd.ExecuteNonQuery();
+                    }
+                    sender.Balance -= amountToTransfer;
+                    receiver.Balance += amountToTransfer;
+                }
+                catch (SqlException)
+                {
+                    status.TransferStatusId = 3;
+                    throw;
+                }
+            }
+            //return sender.Balance;
         }
 
         private void RequestMoney(decimal amountToTransfer, Account sender, Account receiver, int userId)

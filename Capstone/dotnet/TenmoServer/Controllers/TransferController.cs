@@ -58,5 +58,11 @@ namespace TenmoServer.Controllers
         {
             return TransferDAO.GetPendingTransfers((int)GetCurrentUserId());
         }
+
+        [HttpPut("pending")]
+        public void ReceivePendingRequest(Transfer t)
+        {
+            TransferDAO.ReceivePendingRequest(t.Amount, AccountDAO.GetAccountById(t.AccountFrom), AccountDAO.GetAccountById (t.AccountTo), (int)GetCurrentUserId(), t.TransferId);
+        }
     }
 }
