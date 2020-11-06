@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Routing;
 using TenmoServer.DAO;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
+using TenmoServer.Models;
 
 namespace TenmoServer.Controllers
 {
@@ -30,7 +31,11 @@ namespace TenmoServer.Controllers
             AccountDAO = _accountDAO;
         }
 
-
+        [HttpGet("{userId}")]
+        public User GetUserById(int userId)
+        {
+            return AccountDAO.GetUserById(userId);
+        }
 
         [HttpGet/*("{accountId}")*/]
         public decimal GetBalance()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using TenmoClient.Data;
 
@@ -97,17 +98,25 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 3)
                 {
-                    
+
                     PrintPendingRequests(API_BASE_URL.GetPendingTransfers());
                     List<int> pendingTransferIds = new List<int>();
-                    foreach(Transfer t in API_BASE_URL.GetPendingTransfers())
+                    foreach (Transfer t in API_BASE_URL.GetPendingTransfers())
                     {
                         pendingTransferIds.Add(t.TransferId);
                     }
                     int transferId = PromptForTransferId(pendingTransferIds);
                     if (transferId != 0)
                     {
-                        AcceptReject()
+                        int acceptOrReject = AcceptReject();
+                        if (acceptOrReject == 1)
+                        {
+                            API_BASE_URL.ReceivePendingRequest(transferId);
+                        }
+                        else if (acceptOrReject == 2)
+                        {
+                            API_BASE_URL.RejectTransferRequest(transferId);
+                        }
                     }
 
                 }
@@ -124,7 +133,14 @@ namespace TenmoClient
                 }
                 else if (menuSelection == 5)
                 {
-                   
+                    PrintTEBucks(API_BASE_URL.GetUsers());
+                    int id = PromptForUserIDSelection();
+                    decimal amount = 0;
+                    if (id != 0)
+                    {
+                        amount = PromptForAmountSelection();
+                        API_BASE_URL.RequestMoney(id, amount);
+                    }
                 }
                 else if (menuSelection == 6)
                 {
@@ -139,27 +155,19 @@ namespace TenmoClient
                 }
             }
         }
-
         private static int PromptForTransferId(List<int> pendingTransferIds)
         {
-            Console.WriteLine("Please enter transfer ID to approve/reject (0 to cancel): ");
             int id;
-            if (int.TryParse(Console.ReadLine(), out id) && id == 0)
+            while (!int.TryParse(Console.ReadLine(), out id))
             {
-            }
-            else
-            {
-                while (!int.TryParse(Console.ReadLine(), out id) || !pendingTransferIds.Contains(id))
-                {
-                    Console.WriteLine("Invalid input.");
-                    Console.WriteLine("Please enter transfer ID to approve/reject (0 to cancel): ");
-                    Console.ReadLine();
-                }
+                Console.WriteLine("Invalid input.");
+                Console.WriteLine("Please enter transfer ID to approve/reject (0 to cancel): ");
+                Console.ReadLine();
             }
             return id;
         }
 
-        public int AcceptReject()
+        public static int AcceptReject()
         {
             Console.WriteLine("1: Approve");
             Console.WriteLine("2: Reject");
@@ -224,28 +232,32 @@ namespace TenmoClient
         }
         public static void PrintPendingRequests(List<Transfer> pendingTransfers)
         {
+            List<API_User> users = new List<API_User>();
+            foreach(Transfer t in pendingTransfers)
+            {
+                users.Add(API_BASE_URL.GetUserById(t.AccountTo));
+            }
             Console.WriteLine("--------------------------------------------");
             Console.WriteLine("Pending Transfers");
-            Console.WriteLine("ID           To      Amount");
+            Console.WriteLine($"{"ID", -10}{"To", -20}{"Amount", -10}");
             Console.WriteLine("--------------------------------------------");
-            foreach (Transfer request in pendingTransfers)
+            for (int i = 0; i < users.Count; i++)
             {
-                Console.WriteLine(request.TransferId + "       " + request.AccountTo + "         " + request.Amount);//maybe backwards AccountFrom?
+                Console.WriteLine($"{pendingTransfers[i].TransferId, -10} {users[i].Username, -20}{pendingTransfers[i].Amount, -10}");
             }
             Console.WriteLine("----------------------------------------------");
-            Console.WriteLine("Please enter transfer ID to approve/reject(0 to cancel): ");
-            //int transferID = int.Parse(Console.ReadLine());
+            Console.WriteLine("Please enter transfer ID to approve/reject (0 to cancel): ");
         }
-        public static void PrintTEBucks(List<API_User> allUsers)//Make transfer an int? since we only care about that property
+        public static void PrintTEBucks(List<API_User> allUsers)
         {
             Console.WriteLine("--------------------------------------------");
-            Console.WriteLine("UsersID               Name");
+            Console.WriteLine($"{"UsersID",-10}{"Name", -10}");
             Console.WriteLine("--------------------------------------------");
             foreach (API_User user in allUsers)
             {
-                Console.WriteLine(user.UserId + "            " + user.Username);
+                Console.WriteLine($"{user.UserId, -10}{user.Username, -10}");
             }
-                Console.WriteLine("----------------------------------------------");
+            Console.WriteLine("----------------------------------------------");
         }
     }
 }

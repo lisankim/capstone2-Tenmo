@@ -17,6 +17,7 @@ namespace TenmoServer.DAO
         void ReceivePendingRequest(decimal amountToTransfer, Account sender, Account receiver, int userId, int transferId);
 
         //RequestMoney??
-
+        void RejectTransferRequest(Transfer t);
+        void RequestMoney(decimal amountToTransfer, Account sender, Account receiver, int userId);
     }
 }

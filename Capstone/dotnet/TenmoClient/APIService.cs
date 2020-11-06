@@ -11,8 +11,6 @@ namespace TenmoClient
     {
         private readonly string API_BASE_URL = "";
         private readonly IRestClient client = new RestClient();
-        //AccountController accountController = new AccountController();
-
         public APIService(string api_url)
         {
             API_BASE_URL = api_url;
@@ -33,7 +31,7 @@ namespace TenmoClient
                 return response.Data;
             }
 
-            return response.Data; // return the Account? 
+            return response.Data; 
         }
 
         // View your past transfers
@@ -89,7 +87,6 @@ namespace TenmoClient
         public void TransferFunds(int recipientId, decimal amount)
         {
             Transfer t = new Transfer();
-            //balance not being updated
             t.AccountFrom = UserService.GetUserId();
             t.AccountTo = recipientId;
             t.Amount = amount;
@@ -104,9 +101,77 @@ namespace TenmoClient
             }
             else
             {
-             //   return response.Data;
+                Console.WriteLine("Funds transferred successfully");
             }
-            //return response.Data;
+        }
+        public void RequestMoney(int accountFromId, decimal amount)
+        {
+            Transfer t = new Transfer();
+            t.TransferStatusId = 1;
+            t.TransferTypeId = 1;
+            t.AccountFrom = accountFromId;
+            t.Amount = amount;
+            RestRequest request = new RestRequest(API_BASE_URL + "transfer/pending");
+            client.Authenticator = new JwtAuthenticator(UserService.GetToken());
+            request.AddJsonBody(t);
+            IRestResponse response = client.Post(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+        }
+        public void ReceivePendingRequest(int transferId)
+        {
+            Transfer t = new Transfer();
+            t.TransferId = transferId;
+            t.TransferStatusId = 2;
+            RestRequest request = new RestRequest(API_BASE_URL + "transfer/pending");
+            client.Authenticator = new JwtAuthenticator(UserService.GetToken());
+            request.AddJsonBody(t);
+            IRestResponse response = client.Put(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            else
+            {
+                Console.WriteLine("Pending funds sent");
+            }
+        }
+        public void RejectTransferRequest(int transferId)
+        {
+            Transfer t = new Transfer();
+            t.TransferId = transferId;
+            t.TransferStatusId = 3;
+            RestRequest request = new RestRequest(API_BASE_URL + "transfer/pending/rejected");
+            client.Authenticator = new JwtAuthenticator(UserService.GetToken());
+            request.AddJsonBody(t);
+            IRestResponse response = client.Put(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            else
+            {
+                Console.WriteLine("Pending transfer rejected.");
+            }
+        }
+        public API_User GetUserById (int userId)
+        {
+            RestRequest request = new RestRequest(API_BASE_URL + "account/" + userId);
+            client.Authenticator = new JwtAuthenticator(UserService.GetToken());
+            IRestResponse<API_User> response = client.Get<API_User>(request);
+            if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)
+            {
+                ProcessErrorResponse(response);
+            }
+            else
+            {
+                return response.Data;
+            }
+
+            return response.Data;
+
         }
         private void ProcessErrorResponse(IRestResponse response)
         {
@@ -130,6 +195,7 @@ namespace TenmoClient
                 }
             }
         }
+
 
 
 

@@ -96,7 +96,7 @@ namespace TenmoServer.DAO
 
                         SqlCommand cmd = new SqlCommand("UPDATE accounts SET balance = (balance-@amount) WHERE user_id = @senderId; " + // =balance-amounttoTransfer
                                                         "UPDATE accounts SET balance = (balance + @amount) WHERE user_id = @receiverId; " +
-                                                        "UPDATE transfers SET transfer_status_id =2 WHERE transfer_id = @transferid;", conn) ;//hard coded type id
+                                                        "UPDATE transfers SET transfer_status_id = 2 WHERE transfer_id = @transferid;", conn) ;//hard coded type id
 
                         cmd.Parameters.AddWithValue("@senderId", sender.AccountId);
                         cmd.Parameters.AddWithValue("@receiverId", receiver.AccountId);
@@ -116,7 +116,7 @@ namespace TenmoServer.DAO
             //return sender.Balance;
         }
 
-        private void RequestMoney(decimal amountToTransfer, Account sender, Account receiver, int userId)
+        public void RequestMoney(decimal amountToTransfer, Account sender, Account receiver, int userId)
         {
 
              status.TransferStatusId = 1;
@@ -151,7 +151,7 @@ namespace TenmoServer.DAO
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM transfers WHERE transfer_status_id = 1 AND account_to = @userId; ", conn);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM transfers WHERE transfer_status_id = 1 AND account_from = @userId; ", conn);
                     cmd.Parameters.AddWithValue("@userId", userId);
                     SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
@@ -166,6 +166,23 @@ namespace TenmoServer.DAO
                 throw;
             }
             return pendingTransfers;
+        }
+        public void RejectTransferRequest(Transfer t)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("UPDATE transfers SET transfer_status_id = 3 WHERE transfer_id = @transferId;", conn);
+                    cmd.Parameters.AddWithValue("@transferId", t.TransferId);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                }
+            }
+            catch
+            {
+                throw;
+            }
         }
         public List<Transfer> GetListOfTransfers(int userId)
         {

@@ -52,7 +52,12 @@ namespace TenmoServer.Controllers
         {
             return TransferDAO.GetDetailsOfTransfer(transferId); 
         }
-
+        [HttpPost("pending")]
+        public void RequestMoney(Transfer t)
+        {
+            t.AccountTo = (int)GetCurrentUserId();
+            TransferDAO.RequestMoney(t.Amount, AccountDAO.GetAccountById(t.AccountFrom), AccountDAO.GetAccountById(t.AccountTo), (int)GetCurrentUserId());
+        }
         [HttpGet("pending")]
         public List<Transfer> GetPendingTransfers()
         {
@@ -63,6 +68,12 @@ namespace TenmoServer.Controllers
         public void ReceivePendingRequest(Transfer t)
         {
             TransferDAO.ReceivePendingRequest(t.Amount, AccountDAO.GetAccountById(t.AccountFrom), AccountDAO.GetAccountById (t.AccountTo), (int)GetCurrentUserId(), t.TransferId);
+        }
+
+        [HttpPut("pending/rejected")]//might need to change url location since secondary put method
+        public void RejectTransferRequest(Transfer t)
+        {
+            TransferDAO.RejectTransferRequest(t);
         }
     }
 }
