@@ -46,9 +46,13 @@ namespace TenmoClient
             }
             else
             {
-                return response.Data;
+                foreach(Transfer t in response.Data)
+                {
+                    t.SenderName = GetUserById(t.AccountFrom).Username;
+                    t.ReceiverName = GetUserById(t.AccountTo).Username;
+                    
+                }
             }
-
             return response.Data;
         }
         public List<API_User> GetUsers()
@@ -120,10 +124,8 @@ namespace TenmoClient
                 ProcessErrorResponse(response);
             }
         }
-        public void ReceivePendingRequest(int transferId)
+        public void ReceivePendingRequest(Transfer t)
         {
-            Transfer t = new Transfer();
-            t.TransferId = transferId;
             t.TransferStatusId = 2;
             RestRequest request = new RestRequest(API_BASE_URL + "transfer/pending");
             client.Authenticator = new JwtAuthenticator(UserService.GetToken());

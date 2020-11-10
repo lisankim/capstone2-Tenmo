@@ -88,8 +88,8 @@ namespace TenmoServer.DAO
                     conn.Open();
                     SqlCommand cmd = new SqlCommand("SELECT * FROM accounts WHERE user_id = @userId", conn);
                     cmd.Parameters.AddWithValue("@userId", userId);
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
+                    SqlDataReader reader = cmd.ExecuteReader(); 
+                    while (reader.Read())//wtf!
                     {
                         accountFromUserId = GetAccountFromReader(reader);
                     }

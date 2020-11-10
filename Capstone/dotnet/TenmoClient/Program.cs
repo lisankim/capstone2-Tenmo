@@ -100,6 +100,7 @@ namespace TenmoClient
                 {
 
                     PrintPendingRequests(API_BASE_URL.GetPendingTransfers());
+
                     List<int> pendingTransferIds = new List<int>();
                     foreach (Transfer t in API_BASE_URL.GetPendingTransfers())
                     {
@@ -111,7 +112,15 @@ namespace TenmoClient
                         int acceptOrReject = AcceptReject();
                         if (acceptOrReject == 1)
                         {
-                            API_BASE_URL.ReceivePendingRequest(transferId);
+                            Transfer myTransfer = new Transfer();
+                            foreach(Transfer t in API_BASE_URL.GetPendingTransfers())
+                            {
+                                if (transferId == t.TransferId)
+                                {
+                                    myTransfer = t;
+                                }
+                            }
+                            API_BASE_URL.ReceivePendingRequest(myTransfer);
                         }
                         else if (acceptOrReject == 2)
                         {
@@ -218,11 +227,11 @@ namespace TenmoClient
             foreach (Transfer t in allTransfers)
             {
                 Console.WriteLine("----------------------------------------");
-                Console.WriteLine("Transfer Details"); //change to TransfersID, add From/To, add Amount
+                Console.WriteLine("Transfers"); //change to TransfersID, add From/To, add Amount
                 Console.WriteLine("----------------------------------------");
                 Console.WriteLine("Id: " + t.TransferId);
-                Console.WriteLine("From: " + t.AccountFrom);
-                Console.WriteLine("To: " + t.AccountTo);
+                Console.WriteLine("From: " + t.SenderName);
+                Console.WriteLine("To: " + t.ReceiverName);
                 Console.WriteLine("Type: " + t.TransferTypeId); //don't need this
                 Console.WriteLine("Status: " + t.TransferStatusId); //don't need this
                 Console.WriteLine("Amount: " + t.Amount);
