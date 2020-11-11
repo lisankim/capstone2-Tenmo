@@ -160,7 +160,7 @@ namespace TenmoClient
         }
         public API_User GetUserById (int userId)
         {
-            RestRequest request = new RestRequest(API_BASE_URL + "account/" + userId);
+            RestRequest request = new RestRequest(API_BASE_URL + "user/" + userId);
             client.Authenticator = new JwtAuthenticator(UserService.GetToken());
             IRestResponse<API_User> response = client.Get<API_User>(request);
             if (response.ResponseStatus != ResponseStatus.Completed || !response.IsSuccessful)

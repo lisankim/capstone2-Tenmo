@@ -31,12 +31,7 @@ namespace TenmoServer.Controllers
             accountDAO = _accountDAO;
         }
 
-        [HttpGet("{userId}")]
-        public User GetUserById(int userId)
-        {
-            return accountDAO.GetUserById(userId);
-        }
-
+       
         [HttpGet/*("{accountId}")*/]
         public decimal GetBalance()
            
