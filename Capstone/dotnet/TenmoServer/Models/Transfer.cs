@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
 
 namespace TenmoServer.Models
 {
     public class Transfer
     {
+        public static readonly decimal MaxValue;
+
         public int TransferId { get; set; }
         public int TransferTypeId { get; set; }
         public int TransferStatusId { get; set; } = 2;
+      
+        [Required(ErrorMessage ="The field 'AccountFrom' is required.")]
         public int AccountFrom { get; set; }
+        [Required(ErrorMessage = "The field 'AccountTo' is required.")]
         public int AccountTo { get; set; }
+        
+        [Range (0, (double)decimal.MaxValue)]
         public decimal Amount { get; set; }
     }
     public class TransferTypes

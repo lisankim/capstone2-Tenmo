@@ -237,7 +237,7 @@ namespace TenmoClient
                 Console.WriteLine("Amount: " + t.Amount);
                 Console.WriteLine("-----------------------------------------");
             }
-            Console.WriteLine("please enter transfer ID to view details (0 to cancel): ");
+            //Console.WriteLine("please enter transfer ID to view details (0 to cancel): ");
         }
         public static void PrintPendingRequests(List<Transfer> pendingTransfers)
         {

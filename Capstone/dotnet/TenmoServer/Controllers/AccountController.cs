@@ -24,17 +24,17 @@ namespace TenmoServer.Controllers
             return userIdInt;
         }
 
-        private static IAccountDAO AccountDAO;
+        private static IAccountDAO accountDAO;
 
         public AccountController(IAccountDAO _accountDAO)
         {
-            AccountDAO = _accountDAO;
+            accountDAO = _accountDAO;
         }
 
         [HttpGet("{userId}")]
         public User GetUserById(int userId)
         {
-            return AccountDAO.GetUserById(userId);
+            return accountDAO.GetUserById(userId);
         }
 
         [HttpGet/*("{accountId}")*/]
@@ -43,7 +43,7 @@ namespace TenmoServer.Controllers
         {
             int accountId = (int)GetCurrentUserId();
 
-            return AccountDAO.GetBalance(accountId);
+            return accountDAO.GetBalance(accountId);
         }
     }
 }

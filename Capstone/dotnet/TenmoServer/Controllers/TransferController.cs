@@ -19,61 +19,61 @@ namespace TenmoServer.Controllers
             int.TryParse(userId, out int userIdInt);
             return userIdInt;
         }
-        private static ITransferDAO TransferDAO;
-        private static IUserDAO UserDAO;
-        private static IAccountDAO AccountDAO;
+        private static ITransferDAO transferDAO;
+        private static IUserDAO userDAO;
+        private static IAccountDAO accountDAO;
         public TransferController(ITransferDAO _transferDAO, IUserDAO _userDAO, IAccountDAO _accountDAO)
         {
-            TransferDAO = _transferDAO;
-            UserDAO = _userDAO;
-            AccountDAO = _accountDAO;
+            transferDAO = _transferDAO;
+            userDAO = _userDAO;
+            accountDAO = _accountDAO;
         }
         [HttpGet]
         public List<User> GetUsers()
         {
-            return UserDAO.GetUsers();
+            return userDAO.GetUsers();
         }
         [HttpPost]
         public decimal TransferFunds(Transfer t)
         {
-            Account sender = AccountDAO.GetAccountById(t.AccountFrom);
-            Account receiver = AccountDAO.GetAccountById(t.AccountTo);
-            return TransferDAO.TransferFunds(t.Amount, sender, receiver, (int)GetCurrentUserId());
+            Account sender = accountDAO.GetAccountById(t.AccountFrom);
+            Account receiver = accountDAO.GetAccountById(t.AccountTo);
+            return transferDAO.TransferFunds(t.Amount, sender, receiver, (int)GetCurrentUserId());
         }
 
         [HttpGet("all")]
         public List<Transfer> GetTransfersList()
         {
-            return TransferDAO.GetListOfTransfers((int)GetCurrentUserId());
+            return transferDAO.GetListOfTransfers((int)GetCurrentUserId());
         }
 
         [HttpGet("{transferId}")]
         public Transfer GetDetailsOfTransfer(int transferId)
         {
-            return TransferDAO.GetDetailsOfTransfer(transferId); 
+            return transferDAO.GetDetailsOfTransfer(transferId); 
         }
         [HttpPost("pending")]
         public void RequestMoney(Transfer t)
         {
             t.AccountTo = (int)GetCurrentUserId();
-            TransferDAO.RequestMoney(t.Amount, AccountDAO.GetAccountById(t.AccountFrom), AccountDAO.GetAccountById(t.AccountTo), (int)GetCurrentUserId());
+            transferDAO.RequestMoney(t.Amount, accountDAO.GetAccountById(t.AccountFrom), accountDAO.GetAccountById(t.AccountTo), (int)GetCurrentUserId());
         }
         [HttpGet("pending")]
         public List<Transfer> GetPendingTransfers()
         {
-            return TransferDAO.GetPendingTransfers((int)GetCurrentUserId());
+            return transferDAO.GetPendingTransfers((int)GetCurrentUserId());
         }
 
         [HttpPut("pending")]
         public void ReceivePendingRequest(Transfer t)
         {
-            TransferDAO.ReceivePendingRequest(t.Amount, AccountDAO.GetAccountById(t.AccountFrom), AccountDAO.GetAccountById (t.AccountTo), (int)GetCurrentUserId(), t.TransferId);
+            transferDAO.ReceivePendingRequest(t.Amount, accountDAO.GetAccountById(t.AccountFrom), accountDAO.GetAccountById (t.AccountTo), (int)GetCurrentUserId(), t.TransferId);
         }
 
         [HttpPut("pending/rejected")]//might need to change url location since secondary put method
         public void RejectTransferRequest(Transfer t)
         {
-            TransferDAO.RejectTransferRequest(t);
+            transferDAO.RejectTransferRequest(t);
         }
     }
 }
